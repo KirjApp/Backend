@@ -179,10 +179,10 @@ app.post('/api/myBooks', (req, res) => {
 //tulevia HTTP GET -pyyntöjä
 app.get("/api/myBooks/:id", (req, res) => {
 
-  const body = req.body
+  const id = req.params.id
   
   // etsitään kirjan id:llä kaikki kirjan arvostelut
-  Book.find({ book_id: body.book_id }).then(result => {
+  Book.findOne({ book_id: id }).then(result => {
     // arvostelut localhostiin 
     res.json(result.reviews)
   }) 
