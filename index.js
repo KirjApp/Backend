@@ -175,6 +175,19 @@ app.post('/api/myBooks', (req, res) => {
 
 })
 
+//määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks/:id
+//tulevia HTTP GET -pyyntöjä
+app.get("/api/myBooks/:id", (req, res) => {
+
+  const body = req.body
+  
+  // etsitään kirjan id:llä kaikki kirjan arvostelut
+  Book.find({ book_id: body.book_id }).then(result => {
+    // arvostelut localhostiin 
+    res.json(result.reviews)
+  }) 
+})
+
 //otetaan käyttöön kehitysaikainen työkalu nodemon, joka asennetaan komennolla: npm install --save-dev nodemon
 //koodin muutokset aiheuttavat nyt automaattisen palvelimen uudelleenkäynnistymisen
 //selain pitää kuitenkin refreshata
