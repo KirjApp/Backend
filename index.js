@@ -167,7 +167,7 @@ app.post('/api/myBooks', (req, res) => {
   })
   
   //Contributor: Juho Hyödynmaa
-  //...
+  //Arvostelu tallentuu tietokantaan
   Book.updateOne({book_id: body.book_id}, { $push: { reviews: [ review ] }}).then(() => {
     console.log('review saved')
     //mongoose.connection.close()
