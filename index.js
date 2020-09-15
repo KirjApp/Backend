@@ -163,7 +163,7 @@ app.post('/api/myBooks', (req, res) => {
       }
      // result.forEach(book => {
      // console.log(book)
-    })
+     // })
   })
   
   //Contributor: Juho Hyödynmaa
