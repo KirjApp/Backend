@@ -119,6 +119,62 @@ app.get("/api/myBooks", (req, res) => {
   }) 
 })
 
+//määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
+//tulevia HTTP POST -pyyntöjä
+//add new data to books to MongoDB Atlas database (book and/or review)
+app.post('/api/myBooks', (req, res) => {
+  
+  const body = req.body
+  
+  const book = new Book({
+    book_id: body.book_id
+  })
+
+  const review = { 
+    writer: body.writer, 
+    reviewtext: body.reviewtext, 
+    stars: body.stars, 
+    date: Date.now() 
+  }
+
+  //Contributor: Juho Hyödynmaa
+  //...
+  Book.find({ book_id: body.book_id })
+    .then(result => {
+      // jos kirja löytyy, sitä ei lisätä
+      if (result.length) {
+        console.log('book found')
+        //mongoose.connection.close()
+      } else {
+      // uusi kirja lisätään tietokantaan
+        book.save()
+          .then(savedBook => savedBook.toJSON())
+          .then(savedAndFormattedBook => {
+            res.json(savedAndFormattedBook)
+            console.log('new book saved') 
+            //mongoose.connection.close()
+          })
+          .catch(error => {
+            console.log(error)
+            response.status(400).send({ error: 'bad id' }) 
+          })
+        book.reviews.push(review)
+        console.log('review saved')     
+      }
+     // result.forEach(book => {
+     // console.log(book)
+    })
+  })
+  
+  //Contributor: Juho Hyödynmaa
+  //...
+  Book.updateOne({book_id: body.book_id}, { $push: { reviews: [ review ] }}).then(() => {
+    console.log('review saved')
+    //mongoose.connection.close()
+  })
+
+})
+
 //otetaan käyttöön kehitysaikainen työkalu nodemon, joka asennetaan komennolla: npm install --save-dev nodemon
 //koodin muutokset aiheuttavat nyt automaattisen palvelimen uudelleenkäynnistymisen
 //selain pitää kuitenkin refreshata
