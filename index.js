@@ -13,6 +13,11 @@ app.use(cors());
 const books_api_key = process.env.BOOKS_API_KEY;
 console.log("api key?", books_api_key);
 
+//Kirja
+const Book = require('./models/book')
+
+app.use(express.json())
+
 const books = google.books({
   version: "v1",
   //auth: `${books_api_key}`
@@ -102,6 +107,17 @@ app.get("/api/books", (req, res) => {
       console.error(error);
     });
 });
+
+//määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
+//tulevia HTTP GET -pyyntöjä
+//data from MongoDB Atlas database
+app.get("/api/myBooks", (req, res) => {
+  // get all books
+  Book.find({}).then(books => {
+    console.log(books)
+    res.json(books)
+  }) 
+})
 
 //otetaan käyttöön kehitysaikainen työkalu nodemon, joka asennetaan komennolla: npm install --save-dev nodemon
 //koodin muutokset aiheuttavat nyt automaattisen palvelimen uudelleenkäynnistymisen
