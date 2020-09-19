@@ -183,9 +183,14 @@ app.get("/api/myBooks/:id", (req, res) => {
   
   // etsitään kirjan id:llä kaikki kirjan arvostelut
   Book.findOne({ book_id: id }).then(result => {
-    // arvostelut localhostiin 
-    res.json(result.reviews)
-  }) 
+	if (result.length) {
+	  // arvostelut localhostiin 
+      res.json(result.reviews)
+	}  
+  })
+  .catch(error => {
+    console.log(error)
+  })
 })
 
 //otetaan käyttöön kehitysaikainen työkalu nodemon, joka asennetaan komennolla: npm install --save-dev nodemon
