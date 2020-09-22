@@ -183,10 +183,12 @@ app.get("/api/myBooks/:id", (req, res) => {
   
   // etsitään kirjan id:llä kaikki kirjan arvostelut
   Book.findOne({ book_id: id }).then(result => {
-	if (result.length) {
+	if (result) {
 	  // arvostelut localhostiin 
       res.json(result.reviews)
-	}  
+	} else {
+	  res.json(null)	
+	}
   })
   .catch(error => {
     console.log(error)
