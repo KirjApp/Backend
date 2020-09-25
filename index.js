@@ -129,12 +129,17 @@ app.post('/api/myBooks', (req, res) => {
   const book = new Book({
     book_id: body.book_id
   })
-
+  
+  var d = new Date().toISOString();
+  var year = d.substr(0,4)
+  var month = d.substr(5,2)
+  var day = d.substr(8,2)
+  
   const review = { 
     writer: body.writer, 
     reviewtext: body.reviewtext, 
     stars: body.stars, 
-    date: Date.now() 
+    date: day + ' / ' + month + ' / ' + year
   }
 
   //Contributor: Juho Hyödynmaa
