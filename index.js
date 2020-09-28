@@ -81,25 +81,27 @@ app.get("/api/books", (req, res) => {
     .list(params)
     //tulostetaan konsoliin kirjan tiedot
     .then((books) => {
-      for (i = 0; i < params.maxResults; i++) {
-        console.log("Kirjan id: " + books.data.items[i].id);
-        console.log("Kirjan nimi: " + books.data.items[i].volumeInfo.title);
-        console.log(
-          "Kirjan kirjoittaja(t): " + books.data.items[i].volumeInfo.authors
-        );
-        console.log(
-          "Kirjan keskiarvoarvostelu: " +
-            books.data.items[i].volumeInfo.averageRating
-        );
-        console.log(
-          "Kirjan kustantaja: " + books.data.items[i].volumeInfo.publisher
-        );
-        console.log(
-          "Kirjan julkaisupäivä. " +
-            books.data.items[i].volumeInfo.publishedDate
-        );
-        console.log();
-      }
+		
+    //  for (i = 0; i < params.maxResults; i++) {
+    //    console.log("Kirjan id: " + books.data.items[i].id);
+    //    console.log("Kirjan nimi: " + books.data.items[i].volumeInfo.title);
+    //    console.log(
+    //      "Kirjan kirjoittaja(t): " + books.data.items[i].volumeInfo.authors
+    //    );
+    //    console.log(
+    //      "Kirjan keskiarvoarvostelu: " +
+    //        books.data.items[i].volumeInfo.averageRating
+    //    );
+    //    console.log(
+    //      "Kirjan kustantaja: " + books.data.items[i].volumeInfo.publisher
+    //    );
+    //    console.log(
+    //      "Kirjan julkaisupäivä. " +
+    //        books.data.items[i].volumeInfo.publishedDate
+    //    );
+    //    console.log();
+    //  }
+	  
       //tuloslistaus localhostiin
       res.json(books);
     })
@@ -149,7 +151,6 @@ app.post('/api/myBooks', (req, res) => {
       // jos kirja löytyy, sitä ei lisätä
       if (result.length) {
         console.log('book found')
-        //mongoose.connection.close()
       } else {
       // uusi kirja lisätään tietokantaan
         book.save()
@@ -157,25 +158,19 @@ app.post('/api/myBooks', (req, res) => {
           .then(savedAndFormattedBook => {
             res.json(savedAndFormattedBook)
             console.log('new book saved') 
-            //mongoose.connection.close()
           })
           .catch(error => {
             console.log(error)
             response.status(400).send({ error: 'bad id' }) 
           })
-        book.reviews.push(review)
-        console.log('review saved')     
+        book.reviews.push(review)  
       }
-     // result.forEach(book => {
-     // console.log(book)
-     // })
   })
   
   //Contributor: Juho Hyödynmaa
   //Arvostelu tallentuu tietokantaan
   Book.updateOne({book_id: body.book_id}, { $push: { reviews: [ review ] }}).then(() => {
     console.log('review saved')
-    //mongoose.connection.close()
   })
 
 })
