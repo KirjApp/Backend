@@ -132,16 +132,19 @@ app.post('/api/myBooks', (req, res) => {
     book_id: body.book_id
   })
   
-  var d = new Date().toISOString();
-  var year = d.substr(0,4)
-  var month = d.substr(5,2)
-  var day = d.substr(8,2)
+  var d = new Date()
+  // var e = new Date().toISOString();
+  // var year = d.substr(0,4)
+  // var month = d.substr(5,2)
+  // var day = d.substr(8,2)
+  // var hour = d.substr(11,2)
+  // var min = d.substr(14,2)
   
   const review = { 
     writer: body.writer, 
     reviewtext: body.reviewtext, 
     stars: body.stars, 
-    date: day + ' / ' + month + ' / ' + year
+    date: d
   }
 
   //Contributor: Juho Hyödynmaa
@@ -169,8 +172,11 @@ app.post('/api/myBooks', (req, res) => {
   })
   
   //Contributor: Juho Hyödynmaa
-  //Arvostelu tallentuu tietokantaan
-  Book.updateOne({book_id: body.book_id}, { $push: { reviews: [ review ] }}).then(() => {
+  //Arvostelu tallentuu tietokantaan ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteell
+  Book.updateOne({book_id: body.book_id}, { $push: { reviews: {
+       $each: [review],
+       $sort: { date: -1 }
+     }}}).then(() => {
     console.log('review saved')
   })
 
