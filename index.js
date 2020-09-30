@@ -132,7 +132,7 @@ app.post('/api/myBooks', (req, res) => {
     book_id: body.book_id
   })
   
-  var d = new Date()
+  // var d = new Date()
   // var e = new Date().toISOString();
   // var year = d.substr(0,4)
   // var month = d.substr(5,2)
@@ -144,7 +144,7 @@ app.post('/api/myBooks', (req, res) => {
     writer: body.writer, 
     reviewtext: body.reviewtext, 
     stars: body.stars, 
-    date: d
+    date: Date.now()
   }
 
   //Contributor: Juho Hyödynmaa
@@ -165,14 +165,15 @@ app.post('/api/myBooks', (req, res) => {
           })
           .catch(error => {
             console.log(error)
-            response.status(400).send({ error: 'bad id' }) 
+            response.status(400).send({ error: 'new book save failed' }) 
           })
+		// ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
         book.reviews.push(review)  
       }
   })
   
   //Contributor: Juho Hyödynmaa
-  //Arvostelu tallentuu tietokantaan ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteell
+  //Arvostelu tallentuu tietokantaan ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
   Book.updateOne({book_id: body.book_id}, { $push: { reviews: {
        $each: [review],
        $sort: { date: -1 }
