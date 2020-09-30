@@ -155,9 +155,8 @@ app.post('/api/myBooks', (req, res) => {
       } else {
       // uusi kirja lisätään tietokantaan
         book
-          .save((savedBook) => { 
-          //.then(savedBook => savedBook.toJSON())
-          //.then(savedAndFormattedBook => {
+          .save()
+          .then(savedBook => {
             res.json(savedBook)
             console.log('new book saved') 
           })
@@ -187,7 +186,7 @@ app.get("/api/myBooks/:id", (req, res) => {
   Book.findOne({ book_id: id }).then(result => {
 	if (result) {
 	  // arvostelut localhostiin 
-      res.json(result.reviews)
+    res.json(result.reviews)
 	} else {
 	  res.json(null)	
 	}
