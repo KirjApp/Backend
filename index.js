@@ -11,7 +11,7 @@ const { google } = require("googleapis");
 app.use(cors());
 
 const books_api_key = process.env.BOOKS_API_KEY;
-console.log("api key?", books_api_key);
+//console.log("api key?", books_api_key);
 
 //Kirja
 const Book = require('./models/book')
@@ -51,14 +51,14 @@ app.get("/", (req, res) => {
 //määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/books
 //tulevia HTTP GET -pyyntöjä
 app.get("/api/books", (req, res) => {
-  console.log(req.query.q);
-  console.log(req.query.maxResults);
-  console.log(req.query.projection);
+  //console.log(req.query.q);
+  //console.log(req.query.maxResults);
+  //console.log(req.query.projection);
   //const query = req.params.q
   //console.log(params)
   //määrittely toimii
   let query = req.query.q;
-  let maxResults = req.query.maxResults;
+  //let maxResults = req.query.maxResults;
   let projection = req.query.projection;
   const params = {
     //hakusana
@@ -68,7 +68,7 @@ app.get("/api/books", (req, res) => {
     //tulosten suodatus (partial, full, free-ebooks, paid-ebooks, ebooks)
     //filtering: 'full',
     //tulosten maksimimäärä
-    maxResults: maxResults,
+    //maxResults: maxResults,
     //printType (all, books, magazines)
     //printType: 'all',
     //kirjan tiedoista näytettävät kentät: 'full' = kaikki, 'lite' = rajoitettu osa
@@ -151,12 +151,14 @@ app.post('/api/myBooks', (req, res) => {
       // jos kirja löytyy, sitä ei lisätä
       if (result.length) {
         console.log('book found')
+        res.json(result)
       } else {
       // uusi kirja lisätään tietokantaan
-        book.save()
-          .then(savedBook => savedBook.toJSON())
-          .then(savedAndFormattedBook => {
-            res.json(savedAndFormattedBook)
+        book
+          .save((savedBook) => { 
+          //.then(savedBook => savedBook.toJSON())
+          //.then(savedAndFormattedBook => {
+            res.json(savedBook)
             console.log('new book saved') 
           })
           .catch(error => {
