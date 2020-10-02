@@ -26,7 +26,7 @@ const bookSchema = new mongoose.Schema({
       writer: String,
       reviewtext: String,
       stars: Number,
-      date: String
+      date: Date
     }
   ],
 })
