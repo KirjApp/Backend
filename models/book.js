@@ -9,7 +9,7 @@ mongoose.set('useFindAndModify', false)
 
 const url = process.env.MONGODB_URI
 
-console.log('connecting to', url)
+console.log('connecting to MongoDB...')
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('connected to MongoDB')
@@ -26,7 +26,7 @@ const bookSchema = new mongoose.Schema({
       writer: String,
       reviewtext: String,
       stars: Number,
-      date: String
+      date: Date
     }
   ],
 })
