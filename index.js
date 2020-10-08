@@ -16,6 +16,9 @@ const books_api_key = process.env.BOOKS_API_KEY;
 //Kirja
 const Book = require('./models/book')
 
+// staattisen sisällön näyttämiseen ja JavaScriptin lataamiseen,
+// tarkastaa löytyykö build-hakemistoa
+app.use(express.static('build'))
 app.use(express.json())
 
 const books = google.books({
@@ -209,5 +212,6 @@ app.get("/api/myBooks/:id", (req, res) => {
 //sovelluksen käynnistys nodemonin käyttöönoton jälkeen: npm run dev (,jos on luotu skripti package.json-tiedostoon)
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
