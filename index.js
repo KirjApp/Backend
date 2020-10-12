@@ -6,16 +6,17 @@
 // Esa Mäkipää: routejen (tapahtumankäsittelijöiden)
 // perusrunko, kirjadatan haku Google Books APIsta
 // 
-// Taika Tulonen: idea Google Books APIn käytöstä,a alustava
+// Taika Tulonen: idea Google Books APIn käytöstä ja alustava
 // selvitys toiminnallisuudesta
 //
 // Kuvaus; määrittelee routet (tapahtumankäsittelijät) kirjadatan
-// hakuun ja tallentamiseen
+// hakuun sekä kirjaan liityvien arvostelujen hakuun ja tallentamiseen
 
 // dotenv: ympäristömuuttujien määrittelyyn (esim. API KEY, PORT,...), asennus: npm install dotenv --save
 require("dotenv").config();
 // express: ohjelmointirajapinta/-kirjasto web-sovellusten ohjelmointiin Node:js:llä, asennus: npm install express --save
 const express = require("express");
+// same origin policy ja CORS (Cross Origin Resource Sharing)
 const cors = require("cors");
 const app = express();
 // Node.js client library for using Google APIs. Support for authorization and authentication with OAuth 2.0, ä
@@ -25,20 +26,19 @@ const { google } = require("googleapis");
 app.use(cors());
 
 const books_api_key = process.env.BOOKS_API_KEY;
-//console.log("api key?", books_api_key);
 
 // kirja
 const Book = require('./models/book')
 
 // staattisen sisällön näyttämiseen ja JavaScriptin lataamiseen,
-// tarkastaa löytyykä build-hakemsitoa
-//app.use(express.static('build'))
+// tarkastaa löytyykö build-hakemsitoa
+app.use(express.static('build'))
 
 app.use(express.json())
 
 const books = google.books({
   version: "v1",
-  //auth: `${books_api_key}`
+  auth: `${books_api_key}`
 });
 
 // määritellään routet
@@ -141,7 +141,7 @@ app.post('/api/myBooks', (req, res) => {
             console.log(error)
             response.status(400).send({ error: 'new book save failed' }) 
           })
-		// ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
+        // ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
         book.reviews.push(review)  
       }
   })
@@ -179,5 +179,6 @@ app.get("/api/myBooks/:id", (req, res) => {
 })
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
