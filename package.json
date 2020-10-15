@@ -1,7 +1,7 @@
 {
   "name": "projektityo",
   "version": "1.0.0",
-  "description": "Projektityön testi",
+  "description": "Projektityö: Kirja-arvostelusovellus KirjApp",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

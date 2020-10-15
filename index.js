@@ -1,108 +1,81 @@
-//dotenv: ympäristömuuttujien määrittelyyn (esim. API KEY, PORT,...), asennus: npm install dotenv --save
+// Contributor(s): Juho Hyödynmaa, Esa Mäkipää, Taika Tulonen
+// 
+// Juho Hyödynmaa: toiminnallisuudet kirjadatan käsittelyyn, 
+// kirhajdatan haku ja tallennus MongoDB tietokantaan 
+//
+// Esa Mäkipää: routejen (tapahtumankäsittelijöiden)
+// perusrunko, kirjadatan haku Google Books APIsta
+// 
+// Taika Tulonen: idea Google Books APIn käytöstä ja alustava
+// selvitys toiminnallisuudesta
+//
+// Kuvaus; määrittelee routet (tapahtumankäsittelijät) kirjadatan
+// hakuun sekä kirjaan liityvien arvostelujen hakuun ja tallentamiseen
+
+// dotenv: ympäristömuuttujien määrittelyyn (esim. API KEY, PORT,...), asennus: npm install dotenv --save
 require("dotenv").config();
-//express: ohjelmointirajapinta web-sovellusten ohjelmointiin Node:js:llä, asennus: npm install express --save
+// express: ohjelmointirajapinta/-kirjasto web-sovellusten ohjelmointiin Node:js:llä, asennus: npm install express --save
 const express = require("express");
+// same origin policy ja CORS (Cross Origin Resource Sharing)
 const cors = require("cors");
 const app = express();
-//Node.js client library for using Google APIs. Support for authorization and authentication with OAuth 2.0, ä
-//API Keys and JWT tokens is included, asennus: npm install googleapis
+// Node.js client library for using Google APIs. Support for authorization and authentication with OAuth 2.0, ä
+// API Keys and JWT tokens is included, asennus: npm install googleapis
 const { google } = require("googleapis");
 
 app.use(cors());
 
 const books_api_key = process.env.BOOKS_API_KEY;
-//console.log("api key?", books_api_key);
 
-//Kirja
+// kirja
 const Book = require('./models/book')
+
+// staattisen sisällön näyttämiseen ja JavaScriptin lataamiseen,
+// tarkastaa löytyykö build-hakemsitoa
+app.use(express.static('build'))
 
 app.use(express.json())
 
 const books = google.books({
   version: "v1",
-  //auth: `${books_api_key}`
+  auth: `${books_api_key}`
 });
-/*
-const params = {
-  //hakusana
-  q: 'php',
-  //ladattavien kirjojen formaatti
-  //download = 'epub',
-  //tulosten suodatus (partial, full, free-ebooks, paid-ebooks, ebooks)
-  //filtering: 'full',
-  //tulosten maksimimäärä
-  maxResults: 20,
-  //printType (all, books, magazines)
-  //printType: 'all',
-  //kirjan tiedoista näytettävät kentät: 'full' = kaikki, 'lite' = rajoitettu osa
-  projection: 'full',
-  //lajittelu (relevance, newest)
-  //sorting: 'relevance'
-};
-*/
-//määritellään routet
 
-//määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen juureen eli
-//polkuun / tulevia HTTP GET -pyyntöjä
+// määritellään routet
+
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen juureen eli
+// polkuun / tulevia HTTP GET -pyyntöjä
 app.get("/", (req, res) => {
   res.send("<h1>Hello World!</h1>");
 });
 
-//määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/books
-//tulevia HTTP GET -pyyntöjä
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/books
+// tulevia HTTP GET -pyyntöjä (kirjadatan haku Google Books APIsta)
 app.get("/api/books", (req, res) => {
-  //console.log(req.query.q);
-  //console.log(req.query.maxResults);
-  //console.log(req.query.projection);
-  //const query = req.params.q
-  //console.log(params)
-  //määrittely toimii
   let query = req.query.q;
-  //let maxResults = req.query.maxResults;
+  let maxResults = req.query.maxResults;
   let projection = req.query.projection;
   const params = {
-    //hakusana
+    // hakusana
     q: query,
-    //ladattavien kirjojen formaatti
+    // ladattavien kirjojen formaatti
     //download = 'epub',
-    //tulosten suodatus (partial, full, free-ebooks, paid-ebooks, ebooks)
+    // tulosten suodatus (partial, full, free-ebooks, paid-ebooks, ebooks)
     //filtering: 'full',
-    //tulosten maksimimäärä
-    //maxResults: maxResults,
-    //printType (all, books, magazines)
+    // tulosten maksimimäärä
+    maxResults: maxResults,
+    // printType (all, books, magazines)
     //printType: 'all',
-    //kirjan tiedoista näytettävät kentät: 'full' = kaikki, 'lite' = rajoitettu osa
+    // kirjan tiedoista näytettävät kentät: 'full' = kaikki, 'lite' = rajoitettu osa
     projection: projection,
-    //lajittelu (relevance, newest)
-    //sorting: 'relevance'
+    // lajittelu (relevance, newest)
+    sorting: 'relevance'
   };
-  //haetaan hakuehdon täyttävät kirjat
+  // haetaan hakuehdon täyttävät kirjat
   books.volumes
     .list(params)
-    //tulostetaan konsoliin kirjan tiedot
-    .then((books) => {
-		
-    //  for (i = 0; i < params.maxResults; i++) {
-    //    console.log("Kirjan id: " + books.data.items[i].id);
-    //    console.log("Kirjan nimi: " + books.data.items[i].volumeInfo.title);
-    //    console.log(
-    //      "Kirjan kirjoittaja(t): " + books.data.items[i].volumeInfo.authors
-    //    );
-    //    console.log(
-    //      "Kirjan keskiarvoarvostelu: " +
-    //        books.data.items[i].volumeInfo.averageRating
-    //    );
-    //    console.log(
-    //      "Kirjan kustantaja: " + books.data.items[i].volumeInfo.publisher
-    //    );
-    //    console.log(
-    //      "Kirjan julkaisupäivä. " +
-    //        books.data.items[i].volumeInfo.publishedDate
-    //    );
-    //    console.log();
-    //  }
-	  
-      //tuloslistaus localhostiin
+    .then((books) => {	  
+      // tuloslistaus localhostiin
       res.json(books);
     })
     .catch((error) => {
@@ -110,9 +83,9 @@ app.get("/api/books", (req, res) => {
     });
 });
 
-//määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
-//tulevia HTTP GET -pyyntöjä
-//data from MongoDB Atlas database
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
+// tulevia HTTP GET -pyyntöjä
+// kaikkien kirojen haku MongoDB tietokannasta
 app.get("/api/myBooks", (req, res) => {
   // get all books
   Book.find({}).then(books => {
@@ -121,9 +94,9 @@ app.get("/api/myBooks", (req, res) => {
   }) 
 })
 
-//määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
-//tulevia HTTP POST -pyyntöjä
-//add new data to books to MongoDB Atlas database (book and/or review)
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
+// tulevia HTTP POST -pyyntöjä
+// tallennus MongoDB tietokantaan (kirja ja/tai arvostelu)
 app.post('/api/myBooks', (req, res) => {
   
   const body = req.body
@@ -140,6 +113,7 @@ app.post('/api/myBooks', (req, res) => {
   // var hour = d.substr(11,2)
   // var min = d.substr(14,2)
   
+  // arvostelu
   const review = { 
     writer: body.writer, 
     reviewtext: body.reviewtext, 
@@ -147,8 +121,8 @@ app.post('/api/myBooks', (req, res) => {
     date: Date.now()
   }
 
-  //Contributor: Juho Hyödynmaa
-  //...
+  // Contributor: Juho Hyödynmaa
+  // ...
   Book.find({ book_id: body.book_id })
     .then(result => {
       // jos kirja löytyy, sitä ei lisätä
@@ -167,47 +141,44 @@ app.post('/api/myBooks', (req, res) => {
             console.log(error)
             response.status(400).send({ error: 'new book save failed' }) 
           })
-		// ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
+        // ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
         book.reviews.push(review)  
       }
   })
   
-  //Contributor: Juho Hyödynmaa
-  //Arvostelu tallentuu tietokantaan ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
+  // Contributor: Juho Hyödynmaa
+  // arvostelu tallentuu tietokantaan ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
   Book.updateOne({book_id: body.book_id}, { $push: { reviews: {
-       $each: [review],
-       $sort: { date: -1 }
-     }}}).then(() => {
+      $each: [review],
+      $sort: { date: -1 }
+    }}}).then(() => {
     console.log('review saved')
   })
 
 })
 
-//määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks/:id
-//tulevia HTTP GET -pyyntöjä
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks/:id
+// tulevia HTTP GET -pyyntöjä
 app.get("/api/myBooks/:id", (req, res) => {
 
   const id = req.params.id
   
-  // etsitään kirjan id:llä kaikki kirjan arvostelut
+  // Contributor: Juho Hyödynmaa
+  // etsitään kirjan id:llä kaikki kirjan arvostelut MongDB 
   Book.findOne({ book_id: id }).then(result => {
-	if (result) {
-	  // arvostelut localhostiin 
-    res.json(result.reviews)
-	} else {
-	  res.json(null)	
-	}
+    if (result) {
+      // arvostelut localhostiin 
+      res.json(result.reviews)
+    } else {
+      res.json(null)	
+    }
   })
   .catch(error => {
     console.log(error)
   })
 })
 
-//otetaan käyttöön kehitysaikainen työkalu nodemon, joka asennetaan komennolla: npm install --save-dev nodemon
-//koodin muutokset aiheuttavat nyt automaattisen palvelimen uudelleenkäynnistymisen
-//selain pitää kuitenkin refreshata
-//sovelluksen käynnistys nodemonin käyttöönoton jälkeen: npm run dev (,jos on luotu skripti package.json-tiedostoon)
-
 const PORT = process.env.PORT || 3001;
-app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
