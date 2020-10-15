@@ -1,7 +1,7 @@
 // Contributor(s): Juho Hyödynmaa, Esa Mäkipää, Taika Tulonen
 // 
 // Juho Hyödynmaa: toiminnallisuudet kirjadatan käsittelyyn, 
-// kirhajdatan haku ja tallennus MongoDB tietokantaan 
+// kirjadatan haku ja tallennus MongoDB tietokantaan 
 //
 // Esa Mäkipää: routejen (tapahtumankäsittelijöiden)
 // perusrunko, kirjadatan haku Google Books APIsta
@@ -31,7 +31,7 @@ const books_api_key = process.env.BOOKS_API_KEY;
 const Book = require('./models/book')
 
 // staattisen sisällön näyttämiseen ja JavaScriptin lataamiseen,
-// tarkastaa löytyykö build-hakemsitoa
+// tarkastaa löytyykö build-hakemistoa
 app.use(express.static('build'))
 
 app.use(express.json())
