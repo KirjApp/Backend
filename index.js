@@ -31,9 +31,8 @@ const books_api_key = process.env.BOOKS_API_KEY;
 const Book = require('./models/book')
 
 // staattisen sisällön näyttämiseen ja JavaScriptin lataamiseen,
-// tarkastaa löytyykö build-hakemsitoa
+// tarkastaa löytyykö build-hakemistoa
 app.use(express.static('build'))
-
 app.use(express.json())
 
 const books = google.books({
