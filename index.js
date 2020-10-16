@@ -23,12 +23,17 @@ const app = express();
 // API Keys and JWT tokens is included, asennus: npm install googleapis
 const { google } = require("googleapis");
 
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+
 app.use(cors());
 
 const books_api_key = process.env.BOOKS_API_KEY;
 
 // kirja
 const Book = require('./models/book')
+// käyttäjä
+const User = require('./models/user')
 
 // staattisen sisällön näyttämiseen ja JavaScriptin lataamiseen,
 // tarkastaa löytyykö build-hakemistoa
@@ -93,13 +98,31 @@ app.get("/api/myBooks", (req, res) => {
   }) 
 })
 
+/* EI VIELÄ KÄYTÖSSÄ
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    return authorization.substring(7)
+  }
+  return null
+}
+*/
+
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
 // tulevia HTTP POST -pyyntöjä
 // tallennus MongoDB tietokantaan (kirja ja/tai arvostelu)
 app.post('/api/myBooks', (req, res) => {
   
   const body = req.body
-  
+/*
+  // TÄMÄ EI KÄYTÖSSÄ, VAATII TOKENIN, JOTA EI VIELÄ LUODA KÄYTTÖLIITTYMÄSSÄ 
+  const token = getTokenFrom(req)
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!token || !decodedToken.id) {
+    return res.status(401).json({ error: 'token missing or invalid' })
+  }
+  const user = User.findById(decodedToken.id)
+*/  
   const book = new Book({
     book_id: body.book_id
   })
@@ -141,7 +164,9 @@ app.post('/api/myBooks', (req, res) => {
             response.status(400).send({ error: 'new book save failed' }) 
           })
         // ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
-        book.reviews.push(review)  
+        book.reviews.push(review)
+        // arvostelun tallentaminen käyttäjälle ei onnistu, ehkä tämä on väärässä paikassa? 
+        //user.reviews.push(review) 
       }
   })
   
@@ -175,6 +200,57 @@ app.get("/api/myBooks/:id", (req, res) => {
   .catch(error => {
     console.log(error)
   })
+})
+
+app.post('/api/users', async (request, response) => {
+  const body = request.body
+
+  if (body.password.length < 3) {
+    return response.status(400).json({ error: 'Minimum password length is 3 characters' }).end()
+  }
+
+  const saltRounds = 10
+  const passwordHash = await bcrypt.hash(body.password, saltRounds)
+
+  const user = new User({
+    username: body.username,
+    passwordHash,
+  })
+
+  const savedUser = await user.save()
+  response.status(201).json(savedUser)
+})
+
+app.post('/api/login', async (request, response) => {
+  const body = request.body
+
+  const user = await User.findOne({ username: body.username })
+
+  // vertaa annettua salasanaa tallennettuun
+  const passwordCorrect = user === null
+    ? false
+    : await bcrypt.compare(body.password, user.passwordHash)
+
+  // käyttäjää ei ole tai salasana ei ole oikea
+  if (!(user && passwordCorrect)) {
+    return response.status(401).json({
+      error: 'invalid username and/or password'
+    })
+  }
+
+  // käyttäjä on olemassa ja salasana on oikea, käyttäjä tokenin luomista varten
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  }
+
+  // token luodaan
+  const token = jwt.sign(userForToken, process.env.SECRET)
+
+  // palauttaa tokenin ja käyttäjänimen
+  response
+    .status(200)
+    .send({ token, username: user.username })
 })
 
 const PORT = process.env.PORT || 3001;

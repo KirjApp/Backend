@@ -3,7 +3,7 @@ const uniqueValidator = require('mongoose-unique-validator')
 
 // määritellään käyttäjädatan muoto
 const userSchema = new mongoose.Schema({
-  username: String{
+  username: {
     type: String,
     required: true,
     minlength: 3	
