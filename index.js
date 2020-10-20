@@ -98,7 +98,18 @@ app.get("/api/myBooks", (req, res) => {
   }) 
 })
 
-/* EI VIELÄ KÄYTÖSSÄ
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/users
+// tulevia HTTP GET -pyyntöjä
+// kaikkien käyttäjien haku MongoDB tietokannasta
+app.get("/api/users", (req, res) => {
+  // get all books
+  User.find({}).then(users => {
+    console.log(users)
+    res.json(users)
+  }) 
+})
+/*
+//EI VIELÄ KÄYTÖSSÄ
 const getTokenFrom = request => {
   const authorization = request.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
@@ -107,7 +118,6 @@ const getTokenFrom = request => {
   return null
 }
 */
-
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
 // tulevia HTTP POST -pyyntöjä
 // tallennus MongoDB tietokantaan (kirja ja/tai arvostelu)
@@ -121,7 +131,7 @@ app.post('/api/myBooks', (req, res) => {
   if (!token || !decodedToken.id) {
     return res.status(401).json({ error: 'token missing or invalid' })
   }
-  const user = User.findById(decodedToken.id)
+  //const user = User.findById(decodedToken.id)
 */  
   const book = new Book({
     book_id: body.book_id
@@ -179,6 +189,15 @@ app.post('/api/myBooks', (req, res) => {
     console.log('review saved')
   })
 
+  // Contributor: Juho Hyödynmaa, Esa Mäkipää
+  // arvostelu tallentuu tietokantaan käyttäjälle ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
+  User.updateOne({ _id: decodedToken.id}, { $push: { reviews: {
+      $each: [review],
+      $position: 0
+    }}}).then(() => {
+    console.log('review saved for user')
+  })
+ 
 })
 
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks/:id
