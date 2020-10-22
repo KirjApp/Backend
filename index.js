@@ -148,6 +148,7 @@ app.post('/api/myBooks', (req, res) => {
   // arvostelu
   const review = { 
     writer: body.writer, 
+	book_id: body.book_id,
     reviewtext: body.reviewtext, 
     stars: body.stars, 
     date: Date.now()
