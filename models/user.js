@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   reviews: [
     { 
       writer: String,
-	  book_id: String,
+      book_id: String,
       reviewtext: String,
       stars: Number,
       date: Date
@@ -25,7 +25,7 @@ userSchema.set('toJSON', {
     returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
     delete returnedObject.__v
-	delete returnedObject.passwordHash
+    delete returnedObject.passwordHash
   }
 })
 
