@@ -89,9 +89,9 @@ app.get("/api/books", (req, res) => {
 
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
 // tulevia HTTP GET -pyyntöjä
-// kaikkien kirojen haku MongoDB tietokannasta
+// kaikkien kirjojen haku MongoDB tietokannasta
 app.get("/api/myBooks", (req, res) => {
-  // get all books
+  // haetaan kaikki kirjat
   Book.find({}).then(books => {
     console.log(books)
     res.json(books)
@@ -102,14 +102,14 @@ app.get("/api/myBooks", (req, res) => {
 // tulevia HTTP GET -pyyntöjä
 // kaikkien käyttäjien haku MongoDB tietokannasta
 app.get("/api/users", (req, res) => {
-  // get all books
+  // haetaan kaikki käyttäjät
   User.find({}).then(users => {
     console.log(users)
     res.json(users)
   }) 
 })
-/*
-//EI VIELÄ KÄYTÖSSÄ
+
+// poimii pyynnön mukana tulleesta autentikoinnin headerista tokenin
 const getTokenFrom = request => {
   const authorization = request.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
@@ -117,22 +117,22 @@ const getTokenFrom = request => {
   }
   return null
 }
-*/
+
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
 // tulevia HTTP POST -pyyntöjä
 // tallennus MongoDB tietokantaan (kirja ja/tai arvostelu)
 app.post('/api/myBooks', (req, res) => {
   
   const body = req.body
-/*
-  // TÄMÄ EI KÄYTÖSSÄ, VAATII TOKENIN, JOTA EI VIELÄ LUODA KÄYTTÖLIITTYMÄSSÄ 
+
+  // varmistetaan tokenin oikeellisuus, tokenin dekoodaus, eli palautetaan olio, jonka 
+  // perusteella token on laadittu
   const token = getTokenFrom(req)
   const decodedToken = jwt.verify(token, process.env.SECRET)
   if (!token || !decodedToken.id) {
     return res.status(401).json({ error: 'token missing or invalid' })
   }
-  //const user = User.findById(decodedToken.id)
-*/  
+  
   const book = new Book({
     book_id: body.book_id
   })
@@ -175,9 +175,7 @@ app.post('/api/myBooks', (req, res) => {
             response.status(400).send({ error: 'new book save failed' }) 
           })
         // ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
-        book.reviews.push(review)
-        // arvostelun tallentaminen käyttäjälle ei onnistu, ehkä tämä on väärässä paikassa? 
-        //user.reviews.push(review) 
+        book.reviews.push(review) 
       }
   })
   
@@ -198,7 +196,6 @@ app.post('/api/myBooks', (req, res) => {
     }}}).then(() => {
     console.log('review saved for user')
   })
- 
 })
 
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks/:id
@@ -208,7 +205,7 @@ app.get("/api/myBooks/:id", (req, res) => {
   const id = req.params.id
   
   // Contributor: Juho Hyödynmaa
-  // etsitään kirjan id:llä kaikki kirjan arvostelut MongDB 
+  // etsitään kirjan id:llä kaikki kirjan arvostelut MongoDB 
   Book.findOne({ book_id: id }).then(result => {
     if (result) {
       // arvostelut localhostiin 
