@@ -190,7 +190,7 @@ app.post('/api/myBooks', (req, res) => {
 
   // Contributor: Juho Hyödynmaa, Esa Mäkipää
   // arvostelu tallentuu tietokantaan käyttäjälle ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
-  User.updateOne({ _id: decodedToken.id}, { $push: { reviews: {
+  User.updateOne({ _id: decodedToken.id }, { $push: { reviews: {
       $each: [review],
       $position: 0
     }}}).then(() => {
@@ -205,7 +205,7 @@ app.get("/api/myBooks/:id", (req, res) => {
   const id = req.params.id
   
   // Contributor: Juho Hyödynmaa
-  // etsitään kirjan id:llä kaikki kirjan arvostelut MongoDB 
+  // etsitään kirjan id:llä kaikki kirjan arvostelut tietokannasta (MongoDB) 
   Book.findOne({ book_id: id }).then(result => {
     if (result) {
       // arvostelut localhostiin 
@@ -217,6 +217,38 @@ app.get("/api/myBooks/:id", (req, res) => {
   .catch(error => {
     console.log(error)
   })
+})
+
+// TESTI KIRJAUTUNEEN KÄYTTÄJÄN ARVOSTELUJEN HAKUUN (sisältää toiminnallisuuden testiä varten)
+// Contributor: Juho Hyödynmaa, Esa Mäkipää
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/userReviews
+// tulevia HTTP GET -pyyntöjä
+app.get('/api/userReviews', async (req, res) => {
+  //const body = req.body
+
+  // varmistetaan tokenin oikeellisuus, dekoodataan token, eli palautetaan olio, jonka 
+  // perusteella token on laadittu
+  const token = getTokenFrom(req)
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!token || !decodedToken.id) {
+    return res.status(401).json({ error: 'token missing or invalid' })
+  }
+  
+  // etsitään tokenin perusteella oikea käyttäjä tietokannasta (MongoDB)
+  const user = await User.findOne({ _id: decodedToken.id })
+    .catch(error => {
+      console.log(error)
+    })
+
+  // teoksen nimen haku?
+  
+  // palautetaan käyttäjän kirjoittamat arvostelut
+  if (user) {
+    // arvostelut localhostiin 
+    res.json(user.reviews)
+  } else {
+    res.json(null)	
+  }
 })
 
 app.post('/api/users', async (request, response) => {
