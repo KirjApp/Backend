@@ -124,13 +124,19 @@ const getTokenFrom = request => {
 app.post('/api/myBooks', (req, res) => {
   
   const body = req.body
+  var decodedToken = null
 
   // varmistetaan tokenin oikeellisuus, tokenin dekoodaus, eli palautetaan olio, jonka 
   // perusteella token on laadittu
+  
   const token = getTokenFrom(req)
-  const decodedToken = jwt.verify(token, process.env.SECRET)
-  if (!token || !decodedToken.id) {
-    return res.status(401).json({ error: 'token missing or invalid' })
+  
+  // if-lauseen ehto syntaksilta epäselvä
+  if (token !== "null") {
+	decodedToken = jwt.verify(token, process.env.SECRET)  
+	if (!token || !decodedToken.id) {
+	  return res.status(401).json({ error: 'token missing or invalid' })
+	}   
   }
   
   const book = new Book({
@@ -190,12 +196,14 @@ app.post('/api/myBooks', (req, res) => {
 
   // Contributor: Juho Hyödynmaa, Esa Mäkipää
   // arvostelu tallentuu tietokantaan käyttäjälle ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
-  User.updateOne({ _id: decodedToken.id }, { $push: { reviews: {
+  if (token !== "null" && decodedToken !== null) {
+	  User.updateOne({ _id: decodedToken.id }, { $push: { reviews: {
       $each: [review],
       $position: 0
     }}}).then(() => {
-    console.log('review saved for user')
-  })
+      console.log('review saved for user')
+    })    
+  }
 })
 
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks/:id
