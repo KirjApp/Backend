@@ -93,7 +93,6 @@ app.get("/api/books", (req, res) => {
 app.get("/api/myBooks", (req, res) => {
   // haetaan kaikki kirjat
   Book.find({}).then(books => {
-    console.log(books)
     res.json(books)
   }) 
 })
@@ -104,7 +103,6 @@ app.get("/api/myBooks", (req, res) => {
 app.get("/api/users", (req, res) => {
   // haetaan kaikki käyttäjät
   User.find({}).then(users => {
-    console.log(users)
     res.json(users)
   }) 
 })
@@ -155,6 +153,7 @@ app.post('/api/myBooks', (req, res) => {
   const review = { 
     writer: body.writer, 
     book_id: body.book_id,
+	book_title: body.book_title,
     reviewtext: body.reviewtext, 
     stars: body.stars, 
     date: Date.now()
@@ -166,7 +165,7 @@ app.post('/api/myBooks', (req, res) => {
     .then(result => {
       // jos kirja löytyy, sitä ei lisätä
       if (result.length) {
-        console.log('book found')
+        console.log('book found in database')
         res.json(result)
       } else {
       // uusi kirja lisätään tietokantaan
