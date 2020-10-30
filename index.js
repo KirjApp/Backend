@@ -113,7 +113,7 @@ const getTokenFrom = request => {
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     return authorization.substring(7)
   }
-  return null
+  return 'null'
 }
 
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
@@ -128,13 +128,13 @@ app.post('/api/myBooks', (req, res) => {
   // perusteella token on laadittu
   
   const token = getTokenFrom(req)
-  
+
   // if-lauseen ehto syntaksilta epäselvä
-  if (token !== null) {
-	decodedToken = jwt.verify(token, process.env.SECRET)  
-	if (!token || !decodedToken.id) {
-	  return res.status(401).json({ error: 'token missing or invalid' })
-	}   
+  if (token !== 'null') {
+    decodedToken = jwt.verify(token, process.env.SECRET)  
+    if (!token || !decodedToken.id) {
+      return res.status(401).json({ error: 'token missing or invalid' })
+    }   
   }
   
   const book = new Book({
@@ -195,7 +195,7 @@ app.post('/api/myBooks', (req, res) => {
 
   // Contributor: Juho Hyödynmaa, Esa Mäkipää
   // arvostelu tallentuu tietokantaan käyttäjälle ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
-  if (token !== null && decodedToken !== null) {
+  if (token !== 'null' && decodedToken !== null) {
 	  User.updateOne({ _id: decodedToken.id }, { $push: { reviews: {
       $each: [review],
       $position: 0
