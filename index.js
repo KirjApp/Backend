@@ -54,7 +54,7 @@ app.get("/", (req, res) => {
 });
 
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/books
-// tulevia HTTP GET -pyyntöjä (kirjadatan haku Google Books APIsta)
+// tulevia HTTP GET -pyyntöjä (kirjadatan haku Google Books APIsta hakusanalla)
 app.get("/api/books", (req, res) => {
   let query = req.query.q;
   let maxResults = req.query.maxResults;
@@ -124,16 +124,15 @@ app.post('/api/myBooks', (req, res) => {
   const body = req.body
   var decodedToken = null
 
-  // varmistetaan tokenin oikeellisuus, tokenin dekoodaus, eli palautetaan olio, jonka 
-  // perusteella token on laadittu
-  
   const token = getTokenFrom(req)
 
   // if-lauseen ehto syntaksilta epäselvä
   if (token !== 'null') {
+    // varmistetaan tokenin oikeellisuus, tokenin dekoodaus, eli palautetaan olio, jonka 
+    // perusteella token on laadittu
     decodedToken = jwt.verify(token, process.env.SECRET)  
     if (!token || !decodedToken.id) {
-      return res.status(401).json({ error: 'token missing or invalid' })
+      return res.status(401).json({ error: 'token puuttu tai ei ole oikea' })
     }   
   }
   
@@ -226,7 +225,6 @@ app.get("/api/myBooks/:id", (req, res) => {
   })
 })
 
-// TESTI KIRJAUTUNEEN KÄYTTÄJÄN ARVOSTELUJEN HAKUUN (sisältää toiminnallisuuden testiä varten)
 // Contributor: Juho Hyödynmaa, Esa Mäkipää
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/userReviews
 // tulevia HTTP GET -pyyntöjä
@@ -238,7 +236,7 @@ app.get('/api/userReviews', async (req, res) => {
   const token = getTokenFrom(req)
   const decodedToken = jwt.verify(token, process.env.SECRET)
   if (!token || !decodedToken.id) {
-    return res.status(401).json({ error: 'token missing or invalid' })
+    return res.status(401).json({ error: 'token puuttuu tai ei ole oikea' })
   }
   
   // etsitään tokenin perusteella oikea käyttäjä tietokannasta (MongoDB)
@@ -246,8 +244,6 @@ app.get('/api/userReviews', async (req, res) => {
     .catch(error => {
       console.log(error)
     })
-
-  // teoksen nimen haku?
   
   // palautetaan käyttäjän kirjoittamat arvostelut
   if (user) {
@@ -258,28 +254,49 @@ app.get('/api/userReviews', async (req, res) => {
   }
 })
 
+// Contributor: Esa Mäkipää, Juho Hyödynmaa
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/users
+// tulevia HTTP GET -pyyntöjä
+// käyttäjän profiilin luonti
 app.post('/api/users', async (request, response) => {
   const body = request.body
-
+  
+  // tarkistetaan salasanan pituus (vaatimus: 3 merkkiä tai enemmän)
   if (body.password.length < 3) {
-    return response.status(400).json({ error: 'Minimum password length is 3 characters' }).end()
+    return response.status(400).json({ error: 'salasanan ja/tai nimimerkin tulee olla vähintään 3 merkkiä' }).end()
   }
 
+  // salasanan hash
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
-
+  
+  // luodaan uusi käyttäjä (nimimerkki ja salasanan hash)
   const user = new User({
     username: body.username,
     passwordHash,
   })
 
-  const savedUser = await user.save()
-  response.status(201).json(savedUser)
+  // nimimerkin validointi (vaatimus: 3 merkkiä tai enemmän)
+  user.validate(async (error) => {
+    if (error){
+      return response.status(400).json({ error: 'nimimerkin ja/tai salasanan tulee olla vähintään 3 merkkiä' }).end()
+    }
+    else {
+      // nimimerkki on kelvollinen, käyttäjän tiedot voidaan tallentaa tietokantaan (MongoDB)
+      const savedUser = await user.save()
+      response.status(201).json(savedUser)
+    }
+  })
 })
 
+// Contributor: Esa Mäkipää, Juho Hyödynmaa
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/users
+// tulevia HTTP GET -pyyntöjä
+// käyttäjän kirjautuminen
 app.post('/api/login', async (request, response) => {
   const body = request.body
 
+  // haetaan annettua nimimerkkiä vastaavaa käyttäjää tietokannasta (MongoDB)
   const user = await User.findOne({ username: body.username })
 
   // vertaa annettua salasanaa tallennettuun
@@ -290,7 +307,7 @@ app.post('/api/login', async (request, response) => {
   // käyttäjää ei ole tai salasana ei ole oikea
   if (!(user && passwordCorrect)) {
     return response.status(401).json({
-      error: 'invalid username and/or password'
+      error: 'tarkista nimimerkki ja/tai salasana'
     })
   }
 
