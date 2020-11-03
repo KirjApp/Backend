@@ -161,26 +161,26 @@ app.post('/api/myBooks', (req, res) => {
   // Contributor: Juho Hyödynmaa
   // ...
   Book.find({ book_id: body.book_id })
-    .then(result => {
-      // jos kirja löytyy, sitä ei lisätä
-      if (result.length) {
-        console.log('book found in database')
-        res.json(result)
-      } else {
-      // uusi kirja lisätään tietokantaan
-        book
-          .save()
-          .then(savedBook => {
-            res.json(savedBook)
-            console.log('new book saved') 
-          })
-          .catch(error => {
-            console.log(error)
-            response.status(400).send({ error: 'new book save failed' }) 
-          })
-        // ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
-        book.reviews.push(review) 
-      }
+  .then(result => {
+    // jos kirja löytyy, sitä ei lisätä
+    if (result.length) {
+      console.log('book found in database')
+      res.json(result)
+    } else {
+    // uusi kirja lisätään tietokantaan
+      book
+        .save()
+        .then(savedBook => {
+          res.json(savedBook)
+          console.log('new book saved') 
+        })
+        .catch(error => {
+          console.log(error)
+          response.status(400).send({ error: 'new book save failed' }) 
+        })
+      // ensimmäisen arvostelun tallennus jos kirjaa ei tietokannassa
+      book.reviews.push(review) 
+    }
   })
   
   // Contributor: Juho Hyödynmaa
@@ -283,8 +283,16 @@ app.post('/api/users', async (request, response) => {
     }
     else {
       // nimimerkki on kelvollinen, käyttäjän tiedot voidaan tallentaa tietokantaan (MongoDB)
-      const savedUser = await user.save()
-      response.status(201).json(savedUser)
+
+      const userCheck = await User.find({ username: body.username })
+        // jos käyttäjänimi löytyy, sitä ei lisätä
+        if (userCheck[0]) {
+          console.log('username already in use')
+        } else {
+        // uusi käyttäjä lisätään tietokantaan
+          const savedUser = await user.save()
+          response.status(201).json(savedUser)
+      }
     }
   })
 })
