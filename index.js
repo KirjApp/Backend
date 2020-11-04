@@ -87,6 +87,29 @@ app.get("/api/books", (req, res) => {
     });
 });
 
+// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/book
+// tulevia HTTP GET -pyyntöjä (yhden kirjan haku Google Books APIsta)
+app.get("/api/book/:id", (req, res) => {
+  const bookId = req.params.id;
+  const projection = req.query.projection;
+  const params = {
+    // hakusana
+    volumeId: bookId,
+    // kirjan tiedoista näytettävät kentät: 'full' = kaikki, 'lite' = rajoitettu osa
+    projection: projection,
+  };
+  // haetaan hakuehdon täyttävä kirja
+  books.volumes
+    .get(params)
+    .then((book) => {	  
+      // tuloslistaus localhostiin
+      res.json(book);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+});
+
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
 // tulevia HTTP GET -pyyntöjä
 // kaikkien kirjojen haku MongoDB tietokannasta
