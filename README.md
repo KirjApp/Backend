@@ -1,6 +1,11 @@
 # Backend
 
-Backend file descriptions as of 13.11. Programming language: Node.js.
+Backend project contributors:
+Henri Lahtela
+Esa Mäkipää
+Juho Hyödynmaa
+
+Backend file descriptions as of 13.11. Programming language: javascript. Node.js used as runtime environment.
 
 The following files are included: 
 
