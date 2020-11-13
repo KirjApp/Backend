@@ -47,12 +47,6 @@ const books = google.books({
 
 // määritellään routet
 
-// määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen juureen eli
-// polkuun / tulevia HTTP GET -pyyntöjä
-app.get("/", (req, res) => {
-  res.send("<h1>Hello World!</h1>");
-});
-
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/books
 // tulevia HTTP GET -pyyntöjä (kirjadatan haku Google Books APIsta hakusanalla)
 app.get("/api/books", (req, res) => {
@@ -62,14 +56,8 @@ app.get("/api/books", (req, res) => {
   const params = {
     // hakusana
     q: query,
-    // ladattavien kirjojen formaatti
-    //download = 'epub',
-    // tulosten suodatus (partial, full, free-ebooks, paid-ebooks, ebooks)
-    //filtering: 'full',
     // tulosten maksimimäärä
     maxResults: maxResults,
-    // printType (all, books, magazines)
-    //printType: 'all',
     // kirjan tiedoista näytettävät kentät: 'full' = kaikki, 'lite' = rajoitettu osa
     projection: projection,
     // lajittelu (relevance, newest)
@@ -79,7 +67,7 @@ app.get("/api/books", (req, res) => {
   books.volumes
     .list(params)
     .then((books) => {	  
-      // tuloslistaus localhostiin
+      // tuloslistaus tallentuu localhostiin
       res.json(books);
     })
     .catch((error) => {
@@ -141,7 +129,7 @@ const getTokenFrom = request => {
 
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/myBooks
 // tulevia HTTP POST -pyyntöjä
-// tallennus MongoDB tietokantaan (kirja ja/tai arvostelu)
+// arvostelun ja tarvittaessa kirjan tallennus MongoDB tietokantaan
 app.post('/api/myBooks', (req, res) => {
   
   const body = req.body
@@ -149,13 +137,12 @@ app.post('/api/myBooks', (req, res) => {
 
   const token = getTokenFrom(req)
 
-  // if-lauseen ehto syntaksilta epäselvä
   if (token !== 'null') {
     // varmistetaan tokenin oikeellisuus, tokenin dekoodaus, eli palautetaan olio, jonka 
     // perusteella token on laadittu
     decodedToken = jwt.verify(token, process.env.SECRET)  
     if (!token || !decodedToken.id) {
-      return res.status(401).json({ error: 'token puuttu tai ei ole oikea' })
+      return res.status(401).json({ error: 'token puuttuu tai ei ole oikea' })
     }   
   }
   
@@ -163,15 +150,7 @@ app.post('/api/myBooks', (req, res) => {
     book_id: body.book_id
   })
   
-  // var d = new Date()
-  // var e = new Date().toISOString();
-  // var year = d.substr(0,4)
-  // var month = d.substr(5,2)
-  // var day = d.substr(8,2)
-  // var hour = d.substr(11,2)
-  // var min = d.substr(14,2)
-  
-  // arvostelu
+  // arvostelu -olio
   const review = { 
     writer: body.writer, 
     book_id: body.book_id,
@@ -182,7 +161,7 @@ app.post('/api/myBooks', (req, res) => {
   }
 
   // Contributor: Juho Hyödynmaa
-  // ...
+  // Tarkistus sille, löytyykö kirja jo MongoDB-tietokannasta.
   Book.find({ book_id: body.book_id })
   .then(result => {
     // jos kirja löytyy, sitä ei lisätä
@@ -234,10 +213,10 @@ app.get("/api/myBooks/:id", (req, res) => {
   const id = req.params.id
   
   // Contributor: Juho Hyödynmaa
-  // etsitään kirjan id:llä kaikki kirjan arvostelut tietokannasta (MongoDB) 
+  // etsii ja palauttaa kirjan id:n perusteella kaikki kirjan arvostelut tietokannasta (MongoDB) 
   Book.findOne({ book_id: id }).then(result => {
     if (result) {
-      // arvostelut localhostiin 
+      // arvostelut talletetaan localhostiin
       res.json(result.reviews)
     } else {
       res.json(null)	
@@ -252,7 +231,6 @@ app.get("/api/myBooks/:id", (req, res) => {
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/userReviews
 // tulevia HTTP GET -pyyntöjä
 app.get('/api/userReviews', async (req, res) => {
-  //const body = req.body
 
   // varmistetaan tokenin oikeellisuus, dekoodataan token, eli palautetaan olio, jonka 
   // perusteella token on laadittu
