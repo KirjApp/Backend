@@ -1,8 +1,8 @@
 # Backend
 
-Backend project contributors:
-Henri Lahtela
-Esa Mäkipää
+Backend project contributors:  
+Henri Lahtela  
+Esa Mäkipää  
 Juho Hyödynmaa
 
 Backend file descriptions as of 13.11. Programming language: javascript. Node.js used as runtime environment.
@@ -26,7 +26,7 @@ Definitions in index.js:
 - jsonwebtoken (for storage of user login)
 - bcrypt (password-hashing function)
 
-Functionality of index.js: 
+Functionality of index.js:  
 __Defines event handlers:__
 
 - app.get("/api/books", (req, res) => {…} get the books data from Google Books API to be shown in the user interface (frontend). Query is a parameter from the search text field in the user interface
