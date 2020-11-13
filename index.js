@@ -1,7 +1,8 @@
 // Contributor(s): Juho Hyödynmaa, Esa Mäkipää, Taika Tulonen
 // 
-// Juho Hyödynmaa: toiminnallisuudet kirjadatan käsittelyyn, 
-// kirhajdatan haku ja tallennus MongoDB tietokantaan 
+// Juho Hyödynmaa: toiminnallisuudet kirjadatan ja käyttäjien käsittelyyn, 
+// kirjadatan, käyttäjien ja arvostelujen tallennus MongoDB-tietokantaan ja tietojen haku tietokannasta
+// parametrien perusteella
 //
 // Esa Mäkipää: routejen (tapahtumankäsittelijöiden)
 // perusrunko, kirjadatan haku Google Books APIsta
@@ -10,7 +11,7 @@
 // selvitys toiminnallisuudesta
 //
 // Kuvaus; määrittelee routet (tapahtumankäsittelijät) kirjadatan
-// hakuun sekä kirjaan liityvien arvostelujen hakuun ja tallentamiseen
+// hakuun sekä kirjaan ja käyttäjiin liittyvien arvostelujen hakuun ja tallentamiseen
 
 // dotenv: ympäristömuuttujien määrittelyyn (esim. API KEY, PORT,...), asennus: npm install dotenv --save
 require("dotenv").config();
@@ -160,8 +161,7 @@ app.post('/api/myBooks', (req, res) => {
     date: Date.now()
   }
 
-  // Contributor: Juho Hyödynmaa
-  // Tarkistus sille, löytyykö kirja jo MongoDB-tietokannasta.
+  // Tarkistus löytyykö kirja jo MongoDB-tietokannasta.
   Book.find({ book_id: body.book_id })
   .then(result => {
     // jos kirja löytyy, sitä ei lisätä
@@ -185,7 +185,6 @@ app.post('/api/myBooks', (req, res) => {
     }
   })
   
-  // Contributor: Juho Hyödynmaa
   // arvostelu tallentuu tietokantaan ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
   Book.updateOne({book_id: body.book_id}, { $push: { reviews: {
       $each: [review],
@@ -194,7 +193,6 @@ app.post('/api/myBooks', (req, res) => {
     console.log('review saved')
   })
 
-  // Contributor: Juho Hyödynmaa, Esa Mäkipää
   // arvostelu tallentuu tietokantaan käyttäjälle ja järjestää arvostelut laskevaan järjestykseen päivämäärän perusteella
   if (token !== 'null' && decodedToken !== null) {
 	  User.updateOne({ _id: decodedToken.id }, { $push: { reviews: {
@@ -212,7 +210,6 @@ app.get("/api/myBooks/:id", (req, res) => {
 
   const id = req.params.id
   
-  // Contributor: Juho Hyödynmaa
   // etsii ja palauttaa kirjan id:n perusteella kaikki kirjan arvostelut tietokannasta (MongoDB) 
   Book.findOne({ book_id: id }).then(result => {
     if (result) {
@@ -227,7 +224,6 @@ app.get("/api/myBooks/:id", (req, res) => {
   })
 })
 
-// Contributor: Juho Hyödynmaa, Esa Mäkipää
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/userReviews
 // tulevia HTTP GET -pyyntöjä
 app.get('/api/userReviews', async (req, res) => {
@@ -255,7 +251,6 @@ app.get('/api/userReviews', async (req, res) => {
   }
 })
 
-// Contributor: Esa Mäkipää, Juho Hyödynmaa
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/users
 // tulevia HTTP GET -pyyntöjä
 // käyttäjän profiilin luonti
@@ -298,7 +293,6 @@ app.post('/api/users', async (request, response) => {
   })
 })
 
-// Contributor: Esa Mäkipää, Juho Hyödynmaa
 // määrittelee tapahtumankäsittelijän, joka hoitaa sovelluksen polkuun /api/users
 // tulevia HTTP GET -pyyntöjä
 // käyttäjän kirjautuminen

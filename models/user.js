@@ -1,3 +1,7 @@
+// Contributor(s): Juho Hyödynmaa
+//
+// Definition of user data
+
 const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
 
