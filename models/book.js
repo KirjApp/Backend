@@ -1,9 +1,8 @@
-//Contributor(s): Juho Hyödynmaa
+// Contributor(s): Juho Hyödynmaa
 //
-//Connection to the database and definition of book data
+// Connection to the database and definition of book data
 
 const mongoose = require('mongoose')
-//const uniqueValidator = require('mongoose-unique-validator')
 
 mongoose.set('useFindAndModify', false)
 
@@ -24,6 +23,8 @@ const bookSchema = new mongoose.Schema({
   reviews: [
     { 
       writer: String,
+      book_id: String,
+      book_title: String,
       reviewtext: String,
       stars: Number,
       date: Date
@@ -40,22 +41,3 @@ bookSchema.set('toJSON', {
 })
 
 module.exports = mongoose.model('Book', bookSchema)
-
-/*
-//Tätä ei tarvita, on nyt vielä, jos tarvitsemme esim. tietojen validointia 
-const personSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-    minlength: 3
-  },
-  number: {
-    type: String,
-    required: true ,
-    minlength: 8
-  }
-})
-*/
-
-//personSchema.plugin(uniqueValidator)
