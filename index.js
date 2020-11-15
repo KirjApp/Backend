@@ -4,14 +4,13 @@
 // kirjadatan, käyttäjien ja arvostelujen tallennus MongoDB-tietokantaan ja tietojen haku tietokannasta
 // parametrien perusteella
 //
-// Esa Mäkipää: routejen (tapahtumankäsittelijöiden)
-// perusrunko, kirjadatan haku Google Books APIsta
+// Esa Mäkipää: routejen perusrunko, kirjadatan haku Google Books APIsta
 // 
 // Taika Tulonen: idea Google Books APIn käytöstä ja alustava
 // selvitys toiminnallisuudesta
 //
-// Kuvaus; määrittelee routet (tapahtumankäsittelijät) kirjadatan
-// hakuun sekä kirjaan ja käyttäjiin liittyvien arvostelujen hakuun ja tallentamiseen
+// Kuvaus: määrittelee routet kirjadatan hakuun sekä kirjaan ja käyttäjiin
+// liittyvien arvostelujen hakuun ja tallentamiseen
 
 // dotenv: ympäristömuuttujien määrittelyyn (esim. API KEY, PORT,...), asennus: npm install dotenv --save
 require("dotenv").config();
@@ -284,6 +283,7 @@ app.post('/api/users', async (request, response) => {
         // jos käyttäjänimi löytyy, sitä ei lisätä
         if (userCheck[0]) {
           console.log('username already in use')
+          return response.status(400).json({ error: `valitsemasi nimimerkki ${userCheck[0].username} on jo käytössä` }).end()
         } else {
         // uusi käyttäjä lisätään tietokantaan
           const savedUser = await user.save()
