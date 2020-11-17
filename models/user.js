@@ -1,6 +1,7 @@
 // Contributor(s): Juho Hyödynmaa
 //
-// Definition of user data
+// Definition of user data.
+// This material is under Creative Commons BY-NC-SA 4.0-licence.
 
 const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
