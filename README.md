@@ -1,12 +1,5 @@
 # Backend
 
-Backend project contributors:  
-Henri Lahtela  
-Esa Mäkipää  
-Juho Hyödynmaa
-
-Backend file descriptions as of 13.11. JavaScript used as programming language. Node.js used as runtime environment.
-
 The following files are included: 
 
 - .gitignore 
@@ -28,7 +21,7 @@ Definitions in index.js:
 
 Functionality of index.js:
 
-- Event handlers:
+- Event handlers
 
   - app.get("/api/books", (req, res) => {…} get the books data from Google Books API to be shown in the user interface (frontend). Query is a parameter from the search text field in the user interface
   - app.get("/api/book/:id", (req, res) => {…} get the book data of one book (by Google Books API book id)
