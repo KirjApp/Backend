@@ -10,7 +10,10 @@
 // selvitys toiminnallisuudesta
 //
 // Kuvaus: määrittelee routet kirjadatan hakuun sekä kirjaan ja käyttäjiin
-// liittyvien arvostelujen hakuun ja tallentamiseen
+// liittyvien arvostelujen hakuun ja tallentamiseen.
+//
+// Materiaali on Creative Commons BY-NC-SA 4.0-lisenssin alaista.
+// This material is under Creative Commons BY-NC-SA 4.0-licence.
 
 // dotenv: ympäristömuuttujien määrittelyyn (esim. API KEY, PORT,...), asennus: npm install dotenv --save
 require("dotenv").config();
