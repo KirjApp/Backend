@@ -1,6 +1,7 @@
 // Contributor(s): Juho Hyödynmaa
 //
-// Connection to the database and definition of book data
+// Connection to the database and definition of book data.
+// This material is under Creative Commons BY-NC-SA 4.0-licence.
 
 const mongoose = require('mongoose')
 
