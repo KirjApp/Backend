@@ -5,7 +5,9 @@ Henri Lahtela
 Esa Mäkipää  
 Juho Hyödynmaa
 
-Backend file descriptions as of 13.11. JavaScript used as programming language. Node.js used as runtime environment.
+Backend file descriptions as of 13.11. JavaScript used as programming language. Node.js used as runtime environment.  
+
+The material is under the Creative Commons BY-NC-SA 4.0-licence.
 
 The following files are included: 
 
