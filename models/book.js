@@ -7,7 +7,12 @@ const mongoose = require('mongoose')
 
 mongoose.set('useFindAndModify', false)
 
-const url = process.env.MONGODB_URI
+let url = process.env.MONGODB_URI
+
+// TEST_MONGODB_URI testausta varten, otetaan käyttöön vain testimoodissa.
+if (process.env.NODE_ENV === 'test') {
+  url = process.env.TEST_MONGODB_URI
+} 
 
 console.log('connecting to MongoDB...')
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })

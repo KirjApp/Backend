@@ -1,5 +1,21 @@
 # Backend
 
+### Test specific branch
+
+#### Book list test(s):
+- run test(s) with the command: __npm test -- tests/book_list.test.js__
+- no need to start frontend and/or backend
+
+#### Book API test(s):
+- run test(s) with the command: __npm test -- tests/book_api.test.js__
+- no need to start frontend and/or backend
+
+#### All test(s):
+- including book list and book API tests
+- run test(s) with the command: __npm test__
+- no need to start frontend and/or backend
+
+
 Backend project contributors:  
 Henri Lahtela  
 Esa Mäkipää  
@@ -12,14 +28,19 @@ The material is under the Creative Commons BY-NC-SA 4.0-licence.  https://creati
 The following files are included: 
 
 - .gitignore 
-- README.md 
+- README.md
+- app.js
+- controllers/testing.js 
 - index.js 
 - package-lock.json 
 - package.json
 - models/book.js
 - models/user.js
+- tests/book_api.test.js
+- tests/book_list.test.js
+- utils/list_helper.js
   
-Definitions in index.js: 
+Definitions in app.js: 
 
 - dotenv (for using of environment variables (API KEY, PORT,…)) 
 - express (interface for programming web applications using Node.js) 
@@ -28,7 +49,7 @@ Definitions in index.js:
 - jsonwebtoken (for storage of user login)
 - bcrypt (password-hashing function)
 
-Functionality of index.js:
+Functionality of app.js:
 
 - Event handlers
 
@@ -41,6 +62,12 @@ Functionality of index.js:
   - app.get('/api/userReviews', async (req, res) => {…} get all reviews found in MongoDB for a user defined by jsonwebtoken
   - app.post('/api/users', async (request, response) => {…} creates a new username entry in MongoDB. checks for password length (3 or more characters) and username length (3 or more characters), and if username already exists
   - app.post('/api/login', async (request, response) => {…} if login input (username and password hash) matches a user found in MongoDB, stores a jsonwebtoken to be used for keeping track of logged use
+
+Content of index.js
+- launches the application at the specified port with Node's built-in http object 
+
+Content of controllers/testing.js
+- defines the router for initializing the database in testeing mode 
 
 Content of package-lock.json
 - automatically generated file that keeps track of dependency versions
@@ -58,3 +85,15 @@ Content of models/user.js
 
 - definitions: mongoose (MongoDB, external database), mongoose-unique-validator (checking if username is unique)
 - define format of data stored and pulled for each user document
+
+Content of tests/book_api.test.js
+
+- tests through REST API (database is included)
+
+Content of tests/book_list.test.js
+
+- tests for books and reviews
+
+Content of utils/list_helper.js
+
+- helper functions for testing books and reviews

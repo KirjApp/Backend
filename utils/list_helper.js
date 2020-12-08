@@ -7,19 +7,28 @@
 // Syväsukellus moderniin websovelluskehitykseen (osat 0-8),
 // kurssimateriaali on lisensoitu Creative Commons BY-NC-SA 3.0 -lisenssillä
 // https://creativecommons.org/licenses/by-nc-sa/3.0/ 
-//
-// Kuvaus: sovelluksen käynnistäminen määriteltyyn porttiin Noden http-olion avulla.
-// (Express-sovellus on eristetty tiedostoon app.js)
+// 
+// Kuvaus: apufunktiota testaukseen
 //
 // Materiaali on Creative Commons BY-NC-SA 4.0-lisenssin alaista.
 // This material is under Creative Commons BY-NC-SA 4.0-licence.
 
-const app = require('./app') // varsinainen Express-sovellus
-const http = require('http')
+// dummy-funktio, palauttaa aina arvon 1
+const dummy = (books) => {
+  return 1
+}
 
-const server = http.createServer(app)
+// totalReviews-funktion, palauttaa arvostelujen yhteismäärän
+const totalReviews = (books) => {
+  const reducer = (sum, item) => {
+    return sum + item.reviews.length
+  }
+  return books.length === 0
+    ? 0
+    : books.reduce(reducer, 0)
+}
 
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+module.exports = {
+  dummy,
+  totalReviews,
+}
